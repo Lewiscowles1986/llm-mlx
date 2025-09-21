@@ -253,7 +253,7 @@ class MlxModel(llm.Model):
             "prompt_tps": chunk.prompt_tps,
             "generation_tps": chunk.generation_tps,
             "peak_memory": chunk.peak_memory,
-            "finish_reason": chunk.finish_reason,
+            "finish_reason": chunk.finish_reason if hasattr(chunk, "finish_reason") else "",
         }
 
 
