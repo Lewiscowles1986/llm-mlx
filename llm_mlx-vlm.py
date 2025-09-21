@@ -197,7 +197,7 @@ class MlxModel(llm.Model):
         self._tokenizer = None
 
     def _load(self):
-        from mlx_lm import load
+        from mlx_vlm import load
 
         if self._model is None:
             self._model, self._tokenizer = load(self.model_path)
@@ -205,8 +205,7 @@ class MlxModel(llm.Model):
 
     def execute(self, prompt, stream, response, conversation):
         import mlx.core as mx
-        from mlx_lm import stream_generate
-        from mlx_lm.sample_utils import make_sampler
+        from mlx_vlm import stream_generate
 
         model, tokenizer = self._load()
 
@@ -233,20 +232,6 @@ class MlxModel(llm.Model):
             messages, add_generation_prompt=True
         )
 
-        sampler = make_sampler(
-            (
-                DEFAULT_TEMPERATURE
-                if prompt.options.temperature is None
-                else prompt.options.temperature
-            ),
-            DEFAULT_TOP_P if prompt.options.top_p is None else prompt.options.top_p,
-            DEFAULT_MIN_P if prompt.options.min_p is None else prompt.options.min_p,
-            (
-                DEFAULT_MIN_TOKENS_TO_KEEP
-                if prompt.options.min_tokens_to_keep is None
-                else prompt.options.min_tokens_to_keep
-            ),
-        )
         if prompt.options.seed:
             mx.random.seed(prompt.options.seed)
 
@@ -261,8 +246,6 @@ class MlxModel(llm.Model):
             model,
             tokenizer,
             chat_prompt,
-            sampler=sampler,
-            max_tokens=max_tokens,
         ):
             yield chunk.text
         response.set_usage(input=chunk.prompt_tokens, output=chunk.generation_tokens)
